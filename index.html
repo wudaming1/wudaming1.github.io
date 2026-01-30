@@ -13,6 +13,75 @@
   </head>
   <body>
     <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/" aria-current="page" class="home-link router-link-exact-active router-link-active"><!----> <span class="site-name">笔记</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <!----></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><!---->  <ul class="sidebar-links"><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading open"><span>机器学习</span> <span class="arrow down"></span></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/机器学习/书单及顺序.html" class="sidebar-link">书单</a></li></ul></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Dart</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><a href="/Flutter/" class="sidebar-heading clickable"><span>Flutter</span> <span class="arrow right"></span></a> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><a href="/Java/" class="sidebar-heading clickable"><span>Java</span> <span class="arrow right"></span></a> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><a href="/Android/" class="sidebar-heading clickable"><span>Android</span> <span class="arrow right"></span></a> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><a href="/Git/" class="sidebar-heading clickable"><span>Git</span> <span class="arrow right"></span></a> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Mac</span> <span class="arrow right"></span></p> <!----></section></li><li><section class="sidebar-group collapsable depth-0"><p class="sidebar-heading"><span>Web</span> <span class="arrow right"></span></p> <!----></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="hello-vuepress"><a href="#hello-vuepress" class="header-anchor">#</a> Hello VuePress</h1></div> <footer class="page-edit"><!----> <!----></footer> <!----> </main></div><div class="global-ui"></div></div>
+    <div id="recaptcha-status" class="recaptcha-status">正在等待 reCAPTCHA Enterprise 参数...</div>
+    <script>
+      (function() {
+        var statusEl = document.getElementById('recaptcha-status');
+        var params = new URLSearchParams(window.location.search);
+        var siteKey = params.get('sitekey');
+        var appLink = params.get('applink');
+
+        function setStatus(message) {
+          if (statusEl) {
+            statusEl.textContent = message;
+          }
+        }
+
+        if (!siteKey) {
+          setStatus('缺少 sitekey 参数。');
+          return;
+        }
+
+        if (!appLink) {
+          setStatus('缺少 applink 参数。');
+          return;
+        }
+
+        setStatus('正在加载 reCAPTCHA Enterprise...');
+
+        function handleError(prefix, error) {
+          var detail = error && error.message ? error.message : error;
+          setStatus(prefix + (detail ? ' ' + detail : ''));
+        }
+
+        var recaptchaScript = document.createElement('script');
+        recaptchaScript.src = 'https://www.google.com/recaptcha/enterprise.js?render=' + encodeURIComponent(siteKey);
+        recaptchaScript.async = true;
+        recaptchaScript.onerror = function() {
+          setStatus('无法加载 reCAPTCHA Enterprise 脚本。');
+        };
+        recaptchaScript.onload = function() {
+          if (!window.grecaptcha || !window.grecaptcha.enterprise) {
+            setStatus('reCAPTCHA Enterprise 初始化失败。');
+            return;
+          }
+
+          window.grecaptcha.enterprise.ready(function() {
+            setStatus('正在向 reCAPTCHA 请求令牌...');
+            window.grecaptcha.enterprise.execute(siteKey, { action: 'applink' }).then(function(token) {
+              setStatus('已获取令牌，正在通过 applink 回传...');
+
+              var redirectUrl;
+              try {
+                redirectUrl = new URL(appLink);
+                redirectUrl.searchParams.set('recaptcha_token', token);
+                window.location.href = redirectUrl.toString();
+                return;
+              } catch (parseError) {
+                /* Fallback for non-standard schemes that URL cannot parse. */
+              }
+
+              var separator = appLink.indexOf('?') === -1 ? '?' : '&';
+              window.location.href = appLink + separator + 'recaptcha_token=' + encodeURIComponent(token);
+            }).catch(function(err) {
+              handleError('reCAPTCHA 请求失败。', err);
+            });
+          });
+        };
+
+        document.head.appendChild(recaptchaScript);
+      })();
+    </script>
     <script src="/assets/js/app.5f1f056a.js" defer></script><script src="/assets/js/2.31e0fda6.js" defer></script><script src="/assets/js/1.e6eebce2.js" defer></script><script src="/assets/js/83.df4a6ac0.js" defer></script>
   </body>
 </html>
